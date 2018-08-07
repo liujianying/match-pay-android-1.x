@@ -250,6 +250,8 @@ public abstract class BaseAccessibilityService extends AccessibilityService {
             user.multiple = getbeishu();
             user.pos_curr = getPosV();
             user.pos_end = getEndV();
+            user.pos_start = startPos;
+            user.offset_total = offsetTotal;
             user.qr_str = s;
             user.type = getType();
             user.amount = (user.pos_curr * user.multiple - user.offset) / 100.0;
@@ -267,6 +269,8 @@ public abstract class BaseAccessibilityService extends AccessibilityService {
             user.multiple = getbeishu();
             user.pos_curr = getPosV();
             user.pos_end = getEndV();
+            user.pos_start = startPos;
+            user.offset_total = offsetTotal;
             user.qr_str = null;
             user.type = getType();
             user.amount = (user.pos_curr * user.multiple - user.offset) / 100.0;
