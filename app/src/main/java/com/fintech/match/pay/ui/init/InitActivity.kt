@@ -34,8 +34,6 @@ import java.util.concurrent.TimeUnit
 
 class InitActivity : BaseActivity() {
     private var startType = 0
-    private var pos_curr = -1
-    private var offset_curr = -1
     private var last:User? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -93,6 +91,8 @@ class InitActivity : BaseActivity() {
 
         })
         btnAli.setOnClickListener { startAli() }
+        btnCSV.setOnClickListener {  }
+        btnUpload.setOnClickListener { upload() }
 //        btnWeChat.setOnClickListener { startWeChat() }
 //        btnClearAli.setOnClickListener { clearSqlLocal(BaseAccessibilityService.TYPE_ALI) }
 //        btnClearWechat.setOnClickListener { clearSqlLocal(BaseAccessibilityService.TYPE_WeChat) }
@@ -161,7 +161,9 @@ class InitActivity : BaseActivity() {
                         BaseAccessibilityService.TYPE_ALI -> {
                             this.last = last
                             et_ali_account.setText(last.account)
+                            et_ali_startPos.setText(last.pos_start.toString())
                             et_ali_total.setText(last.pos_end.toString())
+                            et_ali_offsetTotal.setText(last.offset_total.toString())
                         }
                     }
                 }
@@ -213,6 +215,19 @@ class InitActivity : BaseActivity() {
                         d?.dispose()
                     }
                 })
+    }
+
+    private fun upload(){
+        AlertDialog.Builder(this)
+                .setMessage("确认要上传本地数据吗？")
+                .setCancelable(false)
+                .setPositiveButton("确认") { _, _ ->
+
+                }
+                .setNegativeButton("取消") { _, _ ->
+                    //                        finish()
+                }
+                .show()
     }
 
     private fun startAli() {

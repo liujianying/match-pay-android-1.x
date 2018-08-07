@@ -241,14 +241,6 @@ public class AlipayAccessibilityService extends BaseAccessibilityService {
     private void db() {
         Observable.interval(1000, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnComplete(new Action() {
-                    @Override
-                    public void run() throws Exception {
-                        Intent intent = new Intent(AlipayAccessibilityService.this, InitActivity.class);
-                        intent.putExtra("reStart", 1000);
-                        AlipayAccessibilityService.this.startActivity(intent);
-                    }
-                })
                 .observeOn(Schedulers.io())
                 .subscribe(new Observer<Long>() {
                     Disposable d;
@@ -274,6 +266,9 @@ public class AlipayAccessibilityService extends BaseAccessibilityService {
                                     if (++reStartNum > 3) {
                                         if (reStartNum>5){
                                             debug(TAG, "已连续重启5次，不能正常运行，请手动重启。");
+                                            Intent intent = new Intent(AlipayAccessibilityService.this, InitActivity.class);
+                                            intent.putExtra("reStart", 1000);
+                                            AlipayAccessibilityService.this.startActivity(intent);
 //                                            disableSelf();
 //                                            onComplete();
                                             return;
