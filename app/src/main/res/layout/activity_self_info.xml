@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.login.LoginActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@id/toolbar"
+        style="@style/toolbar_style">
+
+        <TextView
+            android:id="@id/tv_title"
+            style="@style/title_style"
+            android:text="个人资料" />
+
+    </android.support.v7.widget.Toolbar>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/textColorDarkc"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/btv_change_account"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="1px"
+                android:background="@color/white"
+                android:drawablePadding="6dp"
+                android:drawableRight="@mipmap/icon_more"
+                android:foreground="?attr/selectableItemBackground"
+                android:lines="1"
+                android:padding="14dp"
+                android:text="切换商户账号"
+                android:textColor="@color/textColorDark3" />
+
+            <TextView
+                android:id="@+id/btv_go_setting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="1px"
+                android:background="@color/white"
+                android:drawablePadding="6dp"
+                android:drawableRight="@mipmap/icon_more"
+                android:foreground="?attr/selectableItemBackground"
+                android:lines="1"
+                android:padding="14dp"
+                android:text="开启通知"
+                android:textColor="@color/textColorDark3" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</RelativeLayout>
+

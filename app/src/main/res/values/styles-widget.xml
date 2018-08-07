@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--top bar start -->
+    <style name="toolbar_style">
+        <item name="android:layout_height">@dimen/toolbar_height</item>
+        <item name="android:minHeight">@dimen/toolbar_height</item>
+        <item name="android:background">@color/colorPrimary</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:clipToPadding">true</item>
+        <item name="android:fitsSystemWindows">true</item>
+        <item name="android:title">""</item>
+    </style>
+
+    <style name="title_style">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">@dimen/toolbar_text_size</item>
+        <item name="android:layout_centerInParent">true</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:padding">4dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <!--top bar end -->
+
+    <!--button style -->
+    <style name="base_button_style">
+        <item name="android:textSize">@dimen/btn_text_size</item>
+        <item name="android:minHeight">@dimen/btn_height</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:background">@drawable/selector_button_default</item>
+    </style>
+
+    <!-- 系统Dialog 主体设置-->
+    <style name="Theme_Dialog_Alert" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowBackground">@color/bg_defult</item>
+        <item name="android:windowTitleStyle">@style/DialogWindowTitle.DeviceDefault</item>
+    </style>
+
+    <style name="DialogWindowTitle.DeviceDefault">
+        <item name="android:textAppearance">@style/DialogWindowTitle</item>
+    </style>
+
+    <style name="DialogWindowTitle">
+        <item name="android:maxLines">1</item>
+        <item name="android:textSize">21sp</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+    </style>
+    <!-- 系统Dialog 主体设置-->
+
+    <!-- tablayout style-->
+    <style name="tablayout.TextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/textColorDark6</item>
+        <item name="textAllCaps">true</item>
+    </style>
+
+    <style name="style_tablayout" parent="Widget.Design.TabLayout">
+        <item name="tabGravity">fill</item>
+        <item name="tabIndicatorHeight">2dp</item>
+        <item name="tabTextAppearance">@style/tablayout.TextAppearance</item>
+        <item name="tabSelectedTextColor">@color/colorPrimary</item>
+        <item name="tabIndicatorColor">@color/colorPrimary</item>
+        <item name="tabTextColor">@color/textColorDark3</item>
+        <item name="android:background">@color/white</item>
+    </style>
+    <!---->
+</resources>

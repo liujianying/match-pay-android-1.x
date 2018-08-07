@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- 基础颜色 #7BA0FE -->
+    <color name="colorPrimary">#7BA0FE</color>
+    <color name="colorPrimaryDark">#7BA0FE</color>
+    <color name="colorAccent">#7BA0FE</color>
+
+    <!-- bg color -->
+    <color name="bg_defult">#ffffff</color>
+    <color name="bg_gray">#f5f5f5</color>
+    <color name="bg_blue">#3F51B5</color>
+
+    <!--text color-->
+    <color name="textColorDark0">#000000</color>
+    <color name="textColorDark3">#333333</color>
+    <color name="textColorDark6">#666666</color>
+    <color name="textColorDark9">#999999</color>
+    <color name="textColorDarkc">#cccccc</color>
+
+
+    <!--color white define -->
+    <color name="white">#ffffff</color>
+    <color name="white_light">#f8f8f8</color>
+
+    <!-- 绿色 -->
+    <color name="forest_green">#1D8C21</color>
+    <color name="san_felix">#136517</color>
+
+    <!-- 黄色 -->
+    <color name="grandis">#FDD285</color>
+
+</resources>

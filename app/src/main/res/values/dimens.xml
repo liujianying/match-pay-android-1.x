@@ -1,0 +1,49 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <!--drawablepadding-->
+    <dimen name="drawablepadding_small">5dp</dimen>
+    <dimen name="drawablepadding_large">10dp</dimen>
+
+    <!--顶部导航栏高度-->
+    <dimen name="toolbar_height">44dp</dimen>
+    <dimen name="toolbar_text_size">18sp</dimen>
+
+    <!--底部导航栏高度-->
+    <dimen name="activity_bottombar_height">48dp</dimen>
+
+    <!--  GoodsDetailActivity 购买页 radio 的最小宽度 -->
+    <dimen name="radio_min_width">55dp</dimen>
+    <dimen name="radio_text_size">13sp</dimen>
+
+    <dimen name="radio_star_width">55dp</dimen>
+
+
+    <dimen name="btn_height">40dp</dimen>
+    <dimen name="btn_text_size">18sp</dimen>
+
+
+    <!--textview size-->
+    <dimen name="text_size_10sp">10sp</dimen>
+    <dimen name="text_size_11sp">11sp</dimen>
+    <dimen name="text_size_12sp">12sp</dimen>
+    <dimen name="text_size_13sp">13sp</dimen>
+    <dimen name="text_size_14sp">14sp</dimen>
+    <dimen name="text_size_15sp">15sp</dimen>
+    <dimen name="text_size_16sp">16sp</dimen>
+    <dimen name="text_size_18sp">18sp</dimen>
+    <dimen name="text_size_20sp">20sp</dimen>
+    <dimen name="text_size_22sp">22sp</dimen>
+    <dimen name="text_size_24sp">24sp</dimen>
+    <dimen name="text_size_26sp">26sp</dimen>
+    <dimen name="text_size_28sp">28sp</dimen>
+
+    <!-- pull widget -->
+    <dimen name="pull_size_icon">28dp</dimen>
+
+    <!-- pull widget -->
+
+
+</resources>
