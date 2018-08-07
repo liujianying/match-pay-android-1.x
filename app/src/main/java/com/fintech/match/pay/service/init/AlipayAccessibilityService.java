@@ -236,7 +236,7 @@ public class AlipayAccessibilityService extends BaseAccessibilityService {
     }
 
     private long lastReStart = 0;
-    private int reStartNum = 0;
+    private int reStartNum = -1;
 
     private void db() {
         Observable.interval(1000, TimeUnit.MILLISECONDS)
@@ -253,6 +253,7 @@ public class AlipayAccessibilityService extends BaseAccessibilityService {
                     @Override
                     public void onNext(Long aLong) {
                         if (isFinish) return;
+                        if (reStartNum>5 || reStartNum == -1) return;
                         if (users.size() > 0) {
                             long id = DB.insert(AlipayAccessibilityService.this, users.poll());
                             debug(TAG, "=========DB========: id = " + id);

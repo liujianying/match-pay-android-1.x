@@ -515,29 +515,29 @@ public abstract class BaseAccessibilityService extends AccessibilityService {
                 });
     }
 
-    private void showResult(List<User> users) {
-        AlertDialog dialog = new AlertDialog.Builder(BaseAccessibilityService.this)
-                .setMessage("程序初始化完毕,共存储数据" + users.size() + "条。")
-                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        try {
-                            Intent intent = new Intent(BaseAccessibilityService.this, InitActivity.class);
-                            BaseAccessibilityService.this.startActivity(intent);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                })
-                .create();
-        if (Build.VERSION.SDK_INT >= 26){
-            dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY);
-        } else{
-            dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
-        }
-
-        dialog.show();
-    }
+//    private void showResult(List<User> users) {
+//        AlertDialog dialog = new AlertDialog.Builder(BaseAccessibilityService.this)
+//                .setMessage("程序初始化完毕,共存储数据" + users.size() + "条。")
+//                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        try {
+//                            Intent intent = new Intent(BaseAccessibilityService.this, InitActivity.class);
+//                            BaseAccessibilityService.this.startActivity(intent);
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                })
+//                .create();
+//        if (Build.VERSION.SDK_INT >= 26){
+//            dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY);
+//        } else{
+//            dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+//        }
+//
+//        dialog.show();
+//    }
 
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -612,7 +612,7 @@ public abstract class BaseAccessibilityService extends AccessibilityService {
                     SPHelper.getInstance().getString(AliPayUI.acc),
                     user.qr_str,
                     (user.pos_curr * user.multiple - user.offset) / 100.0 + ""};
-            debug(TAG,"csv:" + Arrays.toString(re));
+//            debug(TAG,"csv:" + Arrays.toString(re));
             csvWriter.writeNext(re);
             csvWriter.close();
         } catch (IOException e) {

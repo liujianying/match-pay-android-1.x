@@ -22,6 +22,8 @@ import com.fintech.match.pay.helper.SPHelper
 import com.fintech.match.pay.service.init.*
 import com.fintech.match.pay.ui.login.LoginActivity
 import com.fintech.match.ui.BaseActivity
+import com.opencsv.CSVWriter
+import io.reactivex.*
 import io.reactivex.Observable
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -29,20 +31,23 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_init.*
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.OutputStreamWriter
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 class InitActivity : BaseActivity() {
     private var startType = 0
-    private var last:User? = null
+    private var last: User? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_init)
 
         if (Configuration.noLogin()) {
-            val intent = Intent(this,LoginActivity::class.java)
-            intent.putExtra("type",2)
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.putExtra("type", 2)
             startActivity(intent)
             finish()
         } else {
@@ -53,7 +58,7 @@ class InitActivity : BaseActivity() {
 
         SPHelper.getInstance().init(this)
 
-        et_ali_startPos.addTextChangedListener(object :TextWatcher{
+        et_ali_startPos.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
             }
 
@@ -61,12 +66,12 @@ class InitActivity : BaseActivity() {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                BaseAccessibilityService.startPos = s?.toString()?.toIntOrNull()?:1
+                BaseAccessibilityService.startPos = s?.toString()?.toIntOrNull() ?: 1
             }
 
         })
 
-        et_ali_total.addTextChangedListener(object :TextWatcher{
+        et_ali_total.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
             }
 
@@ -74,11 +79,11 @@ class InitActivity : BaseActivity() {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                BaseAccessibilityService.endPos = s?.toString()?.toIntOrNull()?:3000
+                BaseAccessibilityService.endPos = s?.toString()?.toIntOrNull() ?: 3000
             }
 
         })
-        et_ali_offsetTotal.addTextChangedListener(object :TextWatcher{
+        et_ali_offsetTotal.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
             }
 
@@ -86,12 +91,12 @@ class InitActivity : BaseActivity() {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                BaseAccessibilityService.offsetTotal = s?.toString()?.toIntOrNull()?:5
+                BaseAccessibilityService.offsetTotal = s?.toString()?.toIntOrNull() ?: 5
             }
 
         })
         btnAli.setOnClickListener { startAli() }
-        btnCSV.setOnClickListener {  }
+        btnCSV.setOnClickListener { toCSV() }
         btnUpload.setOnClickListener { upload() }
 //        btnWeChat.setOnClickListener { startWeChat() }
 //        btnClearAli.setOnClickListener { clearSqlLocal(BaseAccessibilityService.TYPE_ALI) }
@@ -109,7 +114,7 @@ class InitActivity : BaseActivity() {
                     emitter.onComplete()
                 }
                 .subscribeOn(Schedulers.io())
-                .subscribe(object :Observer<Int>{
+                .subscribe(object : Observer<Int> {
                     var d: Disposable? = null
                     override fun onComplete() {
                         getDataFromSql()
@@ -175,13 +180,13 @@ class InitActivity : BaseActivity() {
                         1 -> {
                             btnAli.performClick()
                         }
-                        1000 ->{
+                        1000 -> {
                             AlertDialog.Builder(this@InitActivity)
                                     .setMessage("出现未知错误，请手动重启")
                                     .setPositiveButton("确定") { dialog, _ -> dialog?.dismiss() }
                                     .show()
                         }
-                        2000 ->{
+                        2000 -> {
                             val am = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
                             am.killBackgroundProcesses("com.eg.android.AlipayGphone")
                             SystemClock.sleep(1000)
@@ -198,7 +203,7 @@ class InitActivity : BaseActivity() {
 
                     override fun onNext(last: User) {
                         if (last.pos_curr == BaseAccessibilityService.endPos &&
-                                last.offset == BaseAccessibilityService.offsetTotal - 1){
+                                last.offset == BaseAccessibilityService.offsetTotal - 1) {
                             AlertDialog.Builder(this@InitActivity)
                                     .setMessage("运行完毕")
                                     .setPositiveButton("确定") { dialog, _ -> dialog?.dismiss() }
@@ -217,7 +222,39 @@ class InitActivity : BaseActivity() {
                 })
     }
 
-    private fun upload(){
+    private fun toCSV() {
+        Single
+                .create(SingleOnSubscribe<List<User>> { emitter ->
+                    val users = DB.queryAll(this@InitActivity, BaseAccessibilityService.TYPE_ALI)
+                    if (users != null)
+                        emitter.onSuccess(users)
+                })
+                .subscribeOn(Schedulers.io())
+                .subscribe { users ->
+                    val n = users.size / 12000
+                    for (i in 0..n) {
+                        val start = i * 12000
+                        val end = (i + 1) * 12000
+                        val users_ = users.subList(start, if (end > users.size) users.size else end)
+
+                        val filePath = Environment.getExternalStorageDirectory().toString() + "/a_match_pay/ali-" + SPHelper.getInstance().getString(AliPayUI.acc) + "-" + i + "-all" + ".txt"
+                        val writer =CSVWriter(OutputStreamWriter(FileOutputStream(filePath, true), "GBK"))
+
+                        users_
+                                .map {
+                                    arrayOf(SPHelper.getInstance().getString(AliPayUI.acc), it.qr_str, ((it.pos_curr * it.multiple - it.offset) / 100.0).toString() + "")
+                                    //            debug(TAG,"csv:" + Arrays.toString(re));
+                                }
+                                .forEach { writer.writeNext(it) }
+
+                        writer.close()
+                    }
+
+                }
+    }
+
+
+    private fun upload() {
         AlertDialog.Builder(this)
                 .setMessage("确认要上传本地数据吗？")
                 .setCancelable(false)
