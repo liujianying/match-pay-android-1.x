@@ -43,6 +43,7 @@ public class AlipayAccessibilityService extends BaseAccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
+        isFinish = false;
         if (!isNonNormal(event)) {
             parserEvent(event);
             lastType = event.getEventType();
@@ -248,12 +249,13 @@ public class AlipayAccessibilityService extends BaseAccessibilityService {
                     @Override
                     public void onSubscribe(Disposable d) {
                         this.d = d;
+                        compositeDisposable.add(d);
                     }
 
                     @Override
                     public void onNext(Long aLong) {
-                        if (isFinish) return;
-                        if (reStartNum>5 || reStartNum == -1) return;
+                        if (isFinish && users.size()==0) return;
+                        if (reStartNum>5 && users.size()==0) return;
                         if (users.size() > 0) {
                             long id = DB.insert(AlipayAccessibilityService.this, users.poll());
                             debug(TAG, "=========DB========: id = " + id);
@@ -296,19 +298,18 @@ public class AlipayAccessibilityService extends BaseAccessibilityService {
                     public void onError(Throwable e) {
                         e.printStackTrace();
                         d.dispose();
-                        db();
                     }
 
                     @Override
                     public void onComplete() {
                         d.dispose();
-                        db();
                     }
                 });
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        return super.onStartCommand(intent, flags, startId);
+    public void onDestroy() {
+        compositeDisposable.dispose();
+        super.onDestroy();
     }
 }

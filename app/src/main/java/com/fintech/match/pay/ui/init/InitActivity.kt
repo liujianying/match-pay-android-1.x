@@ -3,7 +3,6 @@ package com.fintech.match.pay.ui.init
 import android.app.ActivityManager
 import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
@@ -12,10 +11,13 @@ import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import com.fintech.lxf.helper.debug
+import com.fintech.lxf.helper.toast
 import com.fintech.match.pay.R
+import com.fintech.match.pay.api.ApiProducerModule
+import com.fintech.match.pay.api.ApiService
 import com.fintech.match.pay.api.Constants
+import com.fintech.match.pay.api.Constants.KEY_USER_NAME
 import com.fintech.match.pay.common.Configuration
-import com.fintech.match.pay.common.route.Router
 import com.fintech.match.pay.data.db.DB
 import com.fintech.match.pay.data.db.User
 import com.fintech.match.pay.helper.SPHelper
@@ -30,12 +32,15 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_init.*
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 import java.io.OutputStreamWriter
-import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.collections.HashMap
 
 class InitActivity : BaseActivity() {
     private var startType = 0
@@ -202,6 +207,8 @@ class InitActivity : BaseActivity() {
                     }
 
                     override fun onNext(last: User) {
+                        btnUpload.isEnabled = true
+                        btnCSV.isEnabled = true
                         if (last.pos_curr == BaseAccessibilityService.endPos &&
                                 last.offset == BaseAccessibilityService.offsetTotal - 1) {
                             AlertDialog.Builder(this@InitActivity)
@@ -238,12 +245,11 @@ class InitActivity : BaseActivity() {
                         val users_ = users.subList(start, if (end > users.size) users.size else end)
 
                         val filePath = Environment.getExternalStorageDirectory().toString() + "/a_match_pay/ali-" + SPHelper.getInstance().getString(AliPayUI.acc) + "-" + i + "-all" + ".txt"
-                        val writer =CSVWriter(OutputStreamWriter(FileOutputStream(filePath, true), "GBK"))
+                        val writer = CSVWriter(OutputStreamWriter(FileOutputStream(filePath, true), "GBK"))
 
                         users_
                                 .map {
-                                    arrayOf(SPHelper.getInstance().getString(AliPayUI.acc), it.qr_str, ((it.pos_curr * it.multiple - it.offset) / 100.0).toString() + "")
-                                    //            debug(TAG,"csv:" + Arrays.toString(re));
+                                    arrayOf(it.qr_str, ((it.pos_curr * it.multiple - it.offset) / 100.0).toString() + "")
                                 }
                                 .forEach { writer.writeNext(it) }
 
@@ -253,16 +259,101 @@ class InitActivity : BaseActivity() {
                 }
     }
 
+    private fun uploadToServer() {
+        Observable
+                .create<List<User>> { emitter ->
+                    delLocalCSV()
+                    val users = DB.queryAll(this@InitActivity, BaseAccessibilityService.TYPE_ALI)
+                    if (users != null)
+                        emitter.onNext(users)
+                    emitter.onComplete()
+                }
+                .subscribeOn(Schedulers.io())
+                .flatMap { users ->
+                    val files = mutableListOf<String>()
+                    val n = users.size / 12000
+                    for (i in 0..n) {
+                        val start = i * 12000
+                        val end = (i + 1) * 12000
+                        val users_ = users.subList(start, if (end > users.size) users.size else end)
+
+                        val filePath = Environment.getExternalStorageDirectory().toString() + "/a_match_pay/ali-" + SPHelper.getInstance().getString(AliPayUI.acc) + "-" + i + "-all" + ".txt"
+                        val writer = CSVWriter(OutputStreamWriter(FileOutputStream(filePath, true), "GBK"))
+
+                        users_
+                                .map {
+                                    arrayOf(it.qr_str, ((it.pos_curr * it.multiple - it.offset) / 100.0).toString() + "")
+                                }
+                                .forEach { writer.writeNext(it) }
+
+                        writer.close()
+
+                        files.add(filePath)
+                    }
+
+                    Observable.fromIterable(files)
+                }
+                .flatMap { path ->
+                    val file = File(path)
+                    val requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file)
+                    val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
+
+//                    val des = "15274936971@003"
+                    val des = Configuration.getUserInfoByKey(KEY_USER_NAME)
+                    val desBody = RequestBody.create(MediaType.parse("multipart/form-data"), des)
+                    val des2 = "2001"
+                    val desBody2 = RequestBody.create(MediaType.parse("multipart/form-data"), des2)
+
+                    val map = HashMap<String, RequestBody>()
+                    map.put("userName", desBody)
+                    map.put("payMethod", desBody2)
+
+                    ApiProducerModule.create(ApiService::class.java)
+                            .upload("http://api.trueinfo.cn/api/upload/uploadfile", map, body)
+                }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object :Observer<ResponseBody>{
+                    var d:Disposable? = null
+                    override fun onError(e: Throwable) {
+                        e.printStackTrace()
+                        d?.dispose()
+                    }
+
+                    override fun onNext(t: ResponseBody) {
+                        if (t.string().contains("success"))
+                            toast("提交本地数据成功")
+                        else
+                            toast("提交本地数据失败")
+                    }
+
+                    override fun onComplete() {
+                        delLocalCSV()
+
+                        d?.dispose()
+                    }
+
+                    override fun onSubscribe(d: Disposable) {
+                        this.d = d
+                    }
+                })
+    }
+
+    private fun delLocalCSV() {
+        val filePath = Environment.getExternalStorageDirectory().toString() + "/a_match_pay/"
+        val file = File(filePath)
+        if (file.isDirectory)
+            file.listFiles()
+                    .forEach { it.delete() }
+    }
 
     private fun upload() {
         AlertDialog.Builder(this)
                 .setMessage("确认要上传本地数据吗？")
                 .setCancelable(false)
                 .setPositiveButton("确认") { _, _ ->
-
+                    uploadToServer()
                 }
                 .setNegativeButton("取消") { _, _ ->
-                    //                        finish()
                 }
                 .show()
     }
@@ -304,6 +395,8 @@ class InitActivity : BaseActivity() {
             file.mkdir()
         }
         Utils.launchAlipayAPP(this)
+
+
     }
 
 //    private fun startWeChat() {

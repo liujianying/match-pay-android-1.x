@@ -69,13 +69,25 @@ public abstract class BaseAccessibilityService extends AccessibilityService {
     private Lock lock = new ReentrantLock();
     protected LinkedList<User> users = new LinkedList<>();
     protected CompositeDisposable compositeDisposable = new CompositeDisposable();
-    protected boolean isFinish = false;
+    protected boolean isFinish = true;
 
     public static final String TAG = BaseAccessibilityService.class.getSimpleName();
 
     @Override
     protected void onServiceConnected() {
         debug(TAG, "onServiceConnected");
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        debug(TAG, "onStartCommand");
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Override
+    public void onRebind(Intent intent) {
+        super.onRebind(intent);
+        debug(TAG, "onRebind");
     }
 
     protected String getAccount() {
@@ -415,60 +427,58 @@ public abstract class BaseAccessibilityService extends AccessibilityService {
         if (posV > endPos) {
             if (getOffsetV() >= offsetTotal - 1) {
                 stop();
-                isFinish = true;
                 return true;
             } else {
                 resetPos();
             }
         }
-        isFinish = false;
         return false;
     }
 
-    protected void checkEffective() {
-        Observable
-                .create(new ObservableOnSubscribe<List<User>>() {
-                    @Override
-                    public void subscribe(ObservableEmitter<List<User>> emitter) throws Exception {
-                        List<User> users = DB.queryQrNull(BaseAccessibilityService.this, getType());
-                        if (users != null)
-                            emitter.onNext(users);
-                        emitter.onComplete();
-                    }
-                })
-                .subscribeOn(Schedulers.io())
-                .flatMap(new Function<List<User>, ObservableSource<User>>() {
-                    @Override
-                    public ObservableSource<User> apply(List<User> users) throws Exception {
-                        return null;
-                    }
-                })
-                .subscribe(new Observer<User>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(User user) {
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        List<User> users = DB.queryQrNull(BaseAccessibilityService.this, getType());
-                        if (users == null)
-                            stop();
-                        else
-                            checkEffective();
-                    }
-                });
-    }
+//    protected void checkEffective() {
+//        Observable
+//                .create(new ObservableOnSubscribe<List<User>>() {
+//                    @Override
+//                    public void subscribe(ObservableEmitter<List<User>> emitter) throws Exception {
+//                        List<User> users = DB.queryQrNull(BaseAccessibilityService.this, getType());
+//                        if (users != null)
+//                            emitter.onNext(users);
+//                        emitter.onComplete();
+//                    }
+//                })
+//                .subscribeOn(Schedulers.io())
+//                .flatMap(new Function<List<User>, ObservableSource<User>>() {
+//                    @Override
+//                    public ObservableSource<User> apply(List<User> users) throws Exception {
+//                        return null;
+//                    }
+//                })
+//                .subscribe(new Observer<User>() {
+//                    @Override
+//                    public void onSubscribe(Disposable d) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onNext(User user) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onComplete() {
+//                        List<User> users = DB.queryQrNull(BaseAccessibilityService.this, getType());
+//                        if (users == null)
+//                            stop();
+//                        else
+//                            checkEffective();
+//                    }
+//                });
+//    }
 
     protected void stop() {
         Observable
@@ -499,6 +509,7 @@ public abstract class BaseAccessibilityService extends AccessibilityService {
                     public void onNext(final List<User> users) {
                         saveToCSV(users);
                         Log.d(TAG, "onNext: 程序初始化完毕,共存储数据 " + users.size());
+                        isFinish = true;
 //                        showResult(users);
                     }
 
@@ -511,6 +522,7 @@ public abstract class BaseAccessibilityService extends AccessibilityService {
                     @Override
                     public void onComplete() {
                         compositeDisposable.dispose();
+                        disableSelf();
                     }
                 });
     }
