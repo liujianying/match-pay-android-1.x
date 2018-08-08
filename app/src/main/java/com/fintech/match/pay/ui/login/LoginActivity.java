@@ -207,7 +207,7 @@ public class LoginActivity extends BaseActivityOld implements
 
         //{"mchId":"422800012","mchName":"兰州拉面","loginToken":"b84c9492d745077f58a7aca04f4c91ef","id":40,"userName":"13888888888@010"}
         String userNameOld = Configuration.getUserInfoByKey(KEY_USER_NAME);
-        if (userNameOld!=null && userNameOld.equals(map.get(KEY_USER_NAME))){//清除本地数据库
+        if (userNameOld!=null && !userNameOld.equals(map.get(KEY_USER_NAME))){//清除本地数据库
             Single.just(1)
                     .subscribeOn(Schedulers.io())
                     .subscribe(new Consumer<Integer>() {
