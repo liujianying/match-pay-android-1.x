@@ -82,7 +82,8 @@ public class LoginActivity extends BaseActivityOld implements
             Router.get().build(ConfigActivity.class).go(this);
             finish();
         }else{
-            Constants.baseUrl = "https://" + Configuration.getUserInfoByKey(Constants.KEY_ADDRESS) + "/";
+//            Constants.baseUrl = "https://" + Configuration.getUserInfoByKey(Constants.KEY_ADDRESS) + "/";
+            Constants.baseUrl = Configuration.getUserInfoByKey(Constants.KEY_ADDRESS) + "/";
         }
 
         type = getIntent().getIntExtra("type",0);

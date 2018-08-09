@@ -57,7 +57,8 @@ public class ConfigActivity extends BaseActivityOld {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnNext:
-                Constants.baseUrl = "https://" + etAddress.getText().toString() + "/";
+//                Constants.baseUrl = "https://" + etAddress.getText().toString() + "/";
+                Constants.baseUrl = etAddress.getText().toString() + "/";
 
                 Map<String, String> request = new HashMap<>();
                 request.put("userName", "13397610459@001");

@@ -31,7 +31,8 @@ class SelectActivity : BaseActivity(), EasyPermissions.PermissionCallbacks {
             Router.get().build(ConfigActivity::class.java).go(this)
             finish()
         } else {
-            Constants.baseUrl = "https://" + Configuration.getUserInfoByKey(Constants.KEY_ADDRESS) + "/"
+//            Constants.baseUrl = "https://" + Configuration.getUserInfoByKey(Constants.KEY_ADDRESS) + "/"
+            Constants.baseUrl = Configuration.getUserInfoByKey(Constants.KEY_ADDRESS) + "/"
         }
 
         btnInit.setOnClickListener { toActivity(InitActivity::class.java) }

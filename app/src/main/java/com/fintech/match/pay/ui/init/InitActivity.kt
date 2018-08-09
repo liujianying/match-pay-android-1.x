@@ -56,7 +56,8 @@ class InitActivity : BaseActivity() {
             startActivity(intent)
             finish()
         } else {
-            Constants.baseUrl = "https://" + Configuration.getUserInfoByKey(Constants.KEY_ADDRESS) + "/"
+//            Constants.baseUrl = "https://" + Configuration.getUserInfoByKey(Constants.KEY_ADDRESS) + "/"
+            Constants.baseUrl = Configuration.getUserInfoByKey(Constants.KEY_ADDRESS) + "/"
         }
 
         startType = intent.getIntExtra("reStart", 0)
@@ -185,13 +186,14 @@ class InitActivity : BaseActivity() {
                         1 -> {
                             btnAli.performClick()
                         }
-                        1000 -> {
-                            AlertDialog.Builder(this@InitActivity)
-                                    .setMessage("出现未知错误，请手动重启")
-                                    .setPositiveButton("确定") { dialog, _ -> dialog?.dismiss() }
-                                    .show()
-                        }
+//                        1000 -> {
+//                            AlertDialog.Builder(this@InitActivity)
+//                                    .setMessage("出现未知错误，请手动重启")
+//                                    .setPositiveButton("确定") { dialog, _ -> dialog?.dismiss() }
+//                                    .show()
+//                        }
                         2000 -> {
+                            SystemClock.sleep(4000)
                             val am = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
                             am.killBackgroundProcesses("com.eg.android.AlipayGphone")
                             SystemClock.sleep(1000)
@@ -232,6 +234,7 @@ class InitActivity : BaseActivity() {
     private fun toCSV() {
         Single
                 .create(SingleOnSubscribe<List<User>> { emitter ->
+                    delLocalCSV()
                     val users = DB.queryAll(this@InitActivity, BaseAccessibilityService.TYPE_ALI)
                     if (users != null)
                         emitter.onSuccess(users)

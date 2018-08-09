@@ -1,11 +1,16 @@
 package com.fintech.match.pay.service.init;
 
+import android.accessibilityservice.AccessibilityService;
+import android.accessibilityservice.GestureDescription;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Path;
+import android.graphics.Point;
 import android.os.Build;
 import android.os.SystemClock;
+import android.util.DisplayMetrics;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -254,8 +259,8 @@ public class AlipayAccessibilityService extends BaseAccessibilityService {
 
                     @Override
                     public void onNext(Long aLong) {
-                        if (isFinish && users.size()==0) return;
-                        if (reStartNum>5 && users.size()==0) return;
+//                        if (isFinish && users.size()==0) return;
+//                        if (reStartNum>5 && users.size()==0) return;
                         if (users.size() > 0) {
                             long id = DB.insert(AlipayAccessibilityService.this, users.poll());
                             debug(TAG, "=========DB========: id = " + id);
@@ -266,28 +271,44 @@ public class AlipayAccessibilityService extends BaseAccessibilityService {
                             if (last != null) {
                                 long lastTime = last.saveTime;
                                 if (currTime - Math.max(lastTime, lastReStart) > 30 * 1000) {
-                                    if (++reStartNum > 3) {
-                                        if (reStartNum>5){
-                                            debug(TAG, "已连续重启5次，不能正常运行，请手动重启。");
-                                            Intent intent = new Intent(AlipayAccessibilityService.this, InitActivity.class);
-                                            intent.putExtra("reStart", 1000);
-                                            AlipayAccessibilityService.this.startActivity(intent);
-//                                            disableSelf();
-//                                            onComplete();
-                                            return;
+                                    lastReStart = currTime;
+                                    if (++reStartNum > 2) {
+//                                        if (reStartNum>5){
+//                                            debug(TAG, "已连续重启5次，不能正常运行，请手动重启。");
+//                                            Intent intent = new Intent(AlipayAccessibilityService.this, InitActivity.class);
+//                                            intent.putExtra("reStart", 1000);
+//                                            AlipayAccessibilityService.this.startActivity(intent);
+////                                            disableSelf();
+////                                            onComplete();
+//                                            return;
+//                                        }
+                                        if (reStartNum>5){//适用于8.1  小米6A  点击右下角未响应弹窗的确定按钮
+                                            DisplayMetrics dm = new DisplayMetrics();
+                                            dm = getResources().getDisplayMetrics();
+                                            System.out.println(dm.widthPixels + "\t" + dm.heightPixels);
+
+                                            AccessibilityNodeInfo root = getRootInActiveWindow();
+                                            if (root!=null){
+//                                                List<AccessibilityNodeInfo> node = root.findAccessibilityNodeInfosByText("支付宝没有响应");
+//                                                System.out.println("AlipayAccessibilityService.onNext:" + (node!=null?node.size():null));
+                                                List<AccessibilityNodeInfo> node_sure = root.findAccessibilityNodeInfosByText("确定");
+                                                System.out.println("AlipayAccessibilityService.onNext:" + (node_sure!=null?node_sure.size():null));
+                                                if (node_sure!=null && node_sure.size()>0)
+                                                    node_sure.get(0).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                                            }
                                         }
-                                        debug(TAG, "已连续重启3次，不能正常运行，杀死应用后重启。");
+                                        debug(TAG, "已连续重启" + reStartNum +"次，不能正常运行，杀死应用后重启。");
                                         Intent intent = new Intent(AlipayAccessibilityService.this, InitActivity.class);
                                         intent.putExtra("reStart", 2000);
                                         AlipayAccessibilityService.this.startActivity(intent);
                                         return;
                                     }
-                                    lastReStart = currTime;
                                     debug(TAG, "=========DB========: 半分钟未检测到新数据，重新启动系统");
                                     Intent intent = new Intent(AlipayAccessibilityService.this, InitActivity.class);
                                     intent.putExtra("reStart", TYPE_ALI);
                                     AlipayAccessibilityService.this.startActivity(intent);
                                 } else {
+//                                    if (isFinish) return;
                                     debug(TAG, "=========DB========: list is null");
                                 }
                             }

@@ -92,7 +92,8 @@ public class MeActivity extends BaseActivityOld {
             startActivity(intent);
             finish();
         }else{
-            Constants.baseUrl = "https://" + Configuration.getUserInfoByKey(Constants.KEY_ADDRESS) + "/";
+//            Constants.baseUrl = "https://" + Configuration.getUserInfoByKey(Constants.KEY_ADDRESS) + "/";
+            Constants.baseUrl = Configuration.getUserInfoByKey(Constants.KEY_ADDRESS) + "/";
         }
 
     }
