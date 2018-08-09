@@ -2,6 +2,7 @@ package com.fintech.match.pay.api;
 
 
 import com.fintech.match.pay.SignRequestBody;
+import com.fintech.match.pay.api.model.AliLogin;
 import com.fintech.match.pay.api.model.RequestBody;
 import com.fintech.match.pay.api.param.LoginRequest;
 import com.fintech.match.pay.api.resp.ResultEntity;
@@ -97,4 +98,7 @@ public interface ApiService {
     Observable<ResponseBody> upload(@Url String url,
                                     @PartMap Map<String, okhttp3.RequestBody> params,
                                     @Part MultipartBody.Part part);
+
+    @POST
+    Observable<AliLogin> getAliLoginUrl(@Url String url);
 }

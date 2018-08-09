@@ -29,4 +29,5 @@
     <string name="upload">上传</string>
     <string name="csv">生成CSV</string>
     <string name="wechat_init">微信随便截</string>
+    <string name="ali_login">支付宝登陆</string>
 </resources>

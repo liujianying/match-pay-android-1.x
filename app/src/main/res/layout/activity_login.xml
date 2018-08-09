@@ -123,6 +123,12 @@
                 android:layout_margin="46dp"
                 android:text="登录" />
         </LinearLayout>
+
+        <Button
+            android:id="@+id/btnAliLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/ali_login" />
     </LinearLayout>
 
 </RelativeLayout>

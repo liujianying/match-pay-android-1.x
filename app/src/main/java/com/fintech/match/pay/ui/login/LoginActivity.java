@@ -11,10 +11,14 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import com.alipay.sdk.app.AuthTask;
 import com.fintech.match.pay.R;
 import com.fintech.match.pay.SignRequestBody;
 import com.fintech.match.pay.api.Constants;
+import com.fintech.match.pay.api.model.AliLogin;
+import com.fintech.match.pay.api.model.AuthResult;
 import com.fintech.match.pay.api.resp.ResultEntity;
 import com.fintech.match.pay.api.rx.ErroCommonConsumer;
 import com.fintech.match.pay.common.Configuration;
@@ -35,8 +39,13 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.OnClick;
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.Observer;
 import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -59,6 +68,8 @@ public class LoginActivity extends BaseActivityOld implements
     EditText etPassword;
     @BindView(R.id.btn_login)
     Button btnLogin;
+    @BindView(R.id.btnAliLogin)
+    Button btnAliLogin;
 
     @Override
     protected boolean useToolbar() {
@@ -182,7 +193,7 @@ public class LoginActivity extends BaseActivityOld implements
 
     // ------------------------------------------------------------------------------------
 
-    @OnClick({R.id.btn_login})
+    @OnClick({R.id.btn_login,R.id.btnAliLogin})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_login:
@@ -191,6 +202,66 @@ public class LoginActivity extends BaseActivityOld implements
                 if (!validate) {
                     dismissPregress();
                 }
+                break;
+            case R.id.btnAliLogin:
+                service().getAliLoginUrl("http://47.96.69.207:18001/auth/authInfo")
+                        .subscribeOn(Schedulers.io())
+                        .flatMap(new Function<AliLogin, ObservableSource<Map<String, String>>>() {
+                            @Override
+                            public ObservableSource<Map<String, String>> apply(AliLogin aliLogin) throws Exception {
+                                AuthTask authTask = new AuthTask(LoginActivity.this);
+                                // 调用授权接口，获取授权结果
+                                Map<String, String> result = authTask.authV2(aliLogin.getInfo(), true);
+                                return Observable.just(result);
+                            }
+
+                        })
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .flatMap(new Function<Map<String, String>, ObservableSource<String>>() {
+                            @Override
+                            public ObservableSource<String> apply(Map<String, String> stringStringMap) throws Exception {
+                                AuthResult authResult = new AuthResult(stringStringMap, true);
+                                String resultStatus = authResult.getResultStatus();
+
+                                // 判断resultStatus 为“9000”且result_code
+                                // 为“200”则代表授权成功，具体状态码代表含义可参考授权接口文档
+                                if (TextUtils.equals(resultStatus, "9000") && TextUtils.equals(authResult.getResultCode(), "200")) {
+                                    // 获取alipay_open_id，调支付时作为参数extern_token 的value
+                                    // 传入，则支付账户为该授权账户
+                                    Toast.makeText(LoginActivity.this,
+                                            "授权成功\n" + String.format("authCode:%s", authResult.getAuthCode()), Toast.LENGTH_SHORT)
+                                            .show();
+                                } else {
+                                    // 其他状态值则为授权失败
+                                    Toast.makeText(LoginActivity.this,
+                                            "授权失败" + String.format("authCode:%s", authResult.getAuthCode()), Toast.LENGTH_SHORT).show();
+
+                                }
+                                return Observable.just(authResult.getAuthCode());
+                            }
+                        })
+                        .subscribe(new Observer<String>() {
+                            @Override
+                            public void onSubscribe(Disposable d) {
+                                showPregress();
+                            }
+
+                            @Override
+                            public void onNext(String s) {
+                                System.out.println(s);
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                e.printStackTrace();
+                                dismissPregress();
+                            }
+
+                            @Override
+                            public void onComplete() {
+                                dismissPregress();
+                            }
+                        });
                 break;
             default:
                 break;

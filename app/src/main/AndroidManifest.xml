@@ -22,6 +22,7 @@
     <!-- <uses-permission android:name="android.permission.ACCESS_DOWNLOAD_MANAGER" /> -->
     <!-- <uses-permission android:name="android.permission.CAMERA" /> -->
     <!-- <uses-permission android:name="android.permission.BLUETOOTH" /> -->
+
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -128,6 +129,22 @@
                 <!--android:name="android.accessibilityservice"-->
                 <!--android:resource="@xml/accessible_service_config_wx" />-->
         <!--</service>-->
+
+        <!--支付宝-->
+        <activity
+            android:name="com.alipay.sdk.app.H5PayActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize"
+            android:exported="false"
+            android:screenOrientation="behind"
+            android:windowSoftInputMode="adjustResize|stateHidden" >
+        </activity>
+        <activity
+            android:name="com.alipay.sdk.app.H5AuthActivity"
+            android:configChanges="orientation|keyboardHidden|navigation"
+            android:exported="false"
+            android:screenOrientation="behind"
+            android:windowSoftInputMode="adjustResize|stateHidden" >
+        </activity>
     </application>
 
 </manifest>
